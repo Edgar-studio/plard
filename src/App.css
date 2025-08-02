@@ -1,1 +1,8 @@
 @import "tailwindcss";
+.card {
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.08);
+}
