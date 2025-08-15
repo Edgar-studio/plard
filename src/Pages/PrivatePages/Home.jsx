@@ -1,166 +1,324 @@
 import React, { useEffect, useState } from "react";
+import { FiPlus, FiFilter, FiX } from "react-icons/fi";
+import Header from "../../Components/Header.jsx";
 
-const tabs = ["Ring", "Wedding", "Cocktail", "Engagement"];
+const categories = [
+    { id: "ring", name: "Кольца" },
+    { id: "wedding", name: "Свадебные" },
+    { id: "cocktail", name: "Коктейльные" },
+    { id: "engagement", name: "Помолвочные" },
+];
 
 const Home = () => {
     const [items, setItems] = useState([]);
-    const [active, setActive] = useState("Ring");
+    const [activeCategory, setActiveCategory] = useState("ring");
+    const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
+    const [filters, setFilters] = useState({
+        dateFrom: "",
+        dateTo: "",
+        priceFrom: "",
+        priceTo: "",
+    });
+    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
-        fetch(`http://localhost:3001/items?category=${encodeURIComponent(active)}`)
-            .then((res) => res.json())
-            .then((data) => {
+        const fetchItems = async () => {
+            setLoading(true);
+            try {
+                const queryParams = new URLSearchParams({
+                    category: activeCategory,
+                    q: searchQuery,
+                    ...(filters.dateFrom && { dateFrom: filters.dateFrom }),
+                    ...(filters.dateTo && { dateTo: filters.dateTo }),
+                    ...(filters.priceFrom && { priceFrom: filters.priceFrom }),
+                    ...(filters.priceTo && { priceTo: filters.priceTo }),
+                });
+
+                const response = await fetch(
+                    `http://localhost:4000/items?${queryParams.toString()}`
+                );
+                const data = await response.json();
                 setItems(data);
+            } catch (error) {
+                console.error("Error fetching items:", error);
+            } finally {
                 setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    }, [active]);
+            }
+        };
+
+        const debounceTimer = setTimeout(fetchItems, 300);
+        return () => clearTimeout(debounceTimer);
+    }, [activeCategory, searchQuery, filters]);
+
+    const handleFilterChange = (e) => {
+        const { id, value } = e.target;
+        setFilters((prev) => ({ ...prev, [id]: value }));
+    };
+
+    const resetFilters = () => {
+        setFilters({
+            dateFrom: "",
+            dateTo: "",
+            priceFrom: "",
+            priceTo: "",
+        });
+    };
+
+    const applyFilters = () => {
+        setMobileFiltersOpen(false);
+    };
+
+    const onLogout = () => {
+        localStorage.removeItem("token");
+        window.location.reload();
+    };
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            {/* Sidebar */}
-            <aside className="hidden w-72 flex-col border-r bg-white p-6 gap-6 md:flex">
-                <header className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Фильтр</h2>
-                    <button
-                        type="button"
-                        className="text-sm text-blue-600 hover:underline focus:outline-none focus:ring-1 focus:ring-blue-600 rounded"
-                    >
-                        Сброс
-                    </button>
-                </header>
+        <div className="min-h-screen bg-gray-50">
+            <Header
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onLogout={onLogout}
+            />
 
-                <div className="space-y-4">
-                    <label htmlFor="date-from" className="block text-xs font-medium mb-1">
-                        Дата от
-                    </label>
-                    <input
-                        type="date"
-                        id="date-from"
-                        aria-label="From date"
-                        className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-
-                    <label htmlFor="date-to" className="block text-xs font-medium mb-1">
-                        Дата до
-                    </label>
-                    <input
-                        type="date"
-                        id="date-to"
-                        aria-label="To date"
-                        className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <label htmlFor="price-from" className="block text-xs font-medium mb-1">
-                        Цена от
-                    </label>
-                    <input
-                        type="number"
-                        id="price-from"
-                        placeholder="От"
-                        className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-
-                    <label htmlFor="price-to" className="block text-xs font-medium mb-1">
-                        Цена до
-                    </label>
-                    <input
-                        type="number"
-                        id="price-to"
-                        placeholder="До"
-                        className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-
-                <button
-                    type="button"
-                    className="mt-auto rounded-md bg-blue-600 py-2 text-white font-medium transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                    Сохранить
-                </button>
-            </aside>
-
-            {/* Main content */}
-            <main className="flex-1 p-6">
-                {/* Tabs */}
-                <nav
-                    aria-label="Категории"
-                    className="mb-6 flex overflow-x-auto gap-4"
-                >
-                    {tabs.map((tab) => (
+            <nav className="max-w-[1280px] mx-auto px-4 py-3 border-b">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                    {categories.map((category) => (
                         <button
-                            key={tab}
-                            type="button"
-                            onClick={() => setActive(tab)}
-                            aria-pressed={active === tab}
-                            className={`whitespace-nowrap rounded-t-lg border-b-2 px-6 py-2 text-sm font-medium transition focus:outline-none ${
-                                active === tab
-                                    ? "border-blue-600 bg-white text-blue-600"
-                                    : "border-transparent text-gray-700 hover:text-blue-600"
+                            key={category.id}
+                            onClick={() => setActiveCategory(category.id)}
+                            className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium ${
+                                activeCategory === category.id
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-gray-100 text-gray-700"
                             }`}
                         >
-                            {tab}
+                            {category.name}
                         </button>
                     ))}
+                    <button className="flex items-center rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700">
+                        <FiPlus className="mr-1" size={16} />
+                        Добавить
+                    </button>
+                </div>
+            </nav>
+
+            <button
+                onClick={() => setMobileFiltersOpen(true)}
+                className="md:hidden fixed bottom-6 right-6 z-10 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition"
+                aria-label="Open filters"
+            >
+                <FiFilter size={24} />
+            </button>
+
+            <div className="flex max-w-[1280px] mx-auto">
+                <aside className="hidden w-72 flex-col border-r bg-white p-6 gap-6 md:flex">
+                    <header className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold">Фильтр</h2>
+                        <button
+                            type="button"
+                            onClick={resetFilters}
+                            className="text-sm text-blue-600 hover:underline focus:outline-none focus:ring-1 focus:ring-blue-600 rounded"
+                        >
+                            Сброс
+                        </button>
+                    </header>
+
+                    <div className="space-y-4">
+                        <label htmlFor="dateFrom" className="block text-xs font-medium mb-1">
+                            Дата от
+                        </label>
+                        <input
+                            type="date"
+                            id="dateFrom"
+                            value={filters.dateFrom}
+                            onChange={handleFilterChange}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+
+                        <label htmlFor="dateTo" className="block text-xs font-medium mb-1">
+                            Дата до
+                        </label>
+                        <input
+                            type="date"
+                            id="dateTo"
+                            value={filters.dateTo}
+                            onChange={handleFilterChange}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <label htmlFor="priceFrom" className="block text-xs font-medium mb-1">
+                            Цена от
+                        </label>
+                        <input
+                            type="number"
+                            id="priceFrom"
+                            placeholder="От"
+                            value={filters.priceFrom}
+                            onChange={handleFilterChange}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+
+                        <label htmlFor="priceTo" className="block text-xs font-medium mb-1">
+                            Цена до
+                        </label>
+                        <input
+                            type="number"
+                            id="priceTo"
+                            placeholder="До"
+                            value={filters.priceTo}
+                            onChange={handleFilterChange}
+                            className="w-full rounded-md border border-gray-300 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
 
                     <button
                         type="button"
-                        aria-label="Добавить категорию"
-                        className="whitespace-nowrap rounded-lg bg-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-300 focus:outline-none"
+                        onClick={applyFilters}
+                        className="mt-auto rounded-md bg-blue-600 py-2 text-white font-medium transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                        +
+                        Применить
                     </button>
-                </nav>
+                </aside>
 
-                {/* Loading / Items */}
-                {loading ? (
-                    <div className="py-20 text-center text-gray-500">Loading...</div>
-                ) : items.length === 0 ? (
-                    <div className="col-span-full py-20 text-center text-gray-500">
-                        Нет товаров в этой категории.
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                        {items.map(({ id, image, title, price }) => (
-                            <article
-                                key={id}
-                                tabIndex={0}
-                                className="card flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <div className="h-44 overflow-hidden bg-gray-100">
-                                    <img
-                                        src={"../../assets/images"}
-                                        alt={title}
-                                        loading="lazy"
-                                        className="h-full w-full object-cover"
-                                        onError={(e) =>
-                                            (e.currentTarget.src =
-                                                "https://via.placeholder.com/300x220?text=No+Image")
-                                        }
+                {mobileFiltersOpen && (
+                    <div className="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden">
+                        <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl">
+                            <div className="p-4 flex justify-between items-center border-b">
+                                <h2 className="text-lg font-semibold">Фильтры</h2>
+                                <button
+                                    onClick={() => setMobileFiltersOpen(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    <FiX size={24} />
+                                </button>
+                            </div>
+                            <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-60px)]">
+                                <div className="space-y-4">
+                                    <label htmlFor="mobileDateFrom" className="block text-sm font-medium">
+                                        Дата от
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="mobileDateFrom"
+                                        value={filters.dateFrom}
+                                        onChange={handleFilterChange}
+                                        className="w-full rounded-md border border-gray-300 p-2 text-sm"
                                     />
                                 </div>
-                                <div className="flex flex-1 flex-col p-3">
-                                    <div className="mb-1 text-[10px] text-gray-500">A555</div>
-                                    <h3 className="flex-1 truncate text-sm font-semibold">{title}</h3>
-                                    <div className="mt-2 flex items-center justify-between">
-                                        <span className="text-base font-bold">{price}$</span>
-                                        <button
-                                            type="button"
-                                            className="rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        >
-                                            View
-                                        </button>
-                                    </div>
+
+                                <div className="space-y-4">
+                                    <label htmlFor="mobileDateTo" className="block text-sm font-medium">
+                                        Дата до
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="mobileDateTo"
+                                        value={filters.dateTo}
+                                        onChange={handleFilterChange}
+                                        className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                                    />
                                 </div>
-                            </article>
-                        ))}
+
+                                <div className="space-y-2">
+                                    <label htmlFor="mobilePriceFrom" className="block text-sm font-medium">
+                                        Цена от
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="mobilePriceFrom"
+                                        placeholder="От"
+                                        value={filters.priceFrom}
+                                        onChange={handleFilterChange}
+                                        className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label htmlFor="mobilePriceTo" className="block text-sm font-medium">
+                                        Цена до
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="mobilePriceTo"
+                                        placeholder="До"
+                                        value={filters.priceTo}
+                                        onChange={handleFilterChange}
+                                        className="w-full rounded-md border border-gray-300 p-2 text-sm"
+                                    />
+                                </div>
+                            </div>
+                            <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={resetFilters}
+                                        className="flex-1 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                                    >
+                                        Сбросить
+                                    </button>
+                                    <button
+                                        onClick={applyFilters}
+                                        className="flex-1 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700"
+                                    >
+                                        Применить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
-            </main>
+
+                <main className="flex-1 p-4 md:p-6">
+                    {loading ? (
+                        <div className="py-20 flex flex-col items-center justify-center text-gray-500">
+                            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                            Загрузка...
+                        </div>
+                    ) : items.length === 0 ? (
+                        <div className="col-span-full py-20 text-center text-gray-500">
+                            Нет товаров в этой категории.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                            {items.map(({ id, image, title, price, sku }) => (
+                                <article
+                                    key={id}
+                                    className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition hover:shadow-md"
+                                >
+                                    <div className="relative h-48 overflow-hidden bg-gray-100">
+                                        <img
+                                            src={image || "https://via.placeholder.com/300x220?text=No+Image"}
+                                            alt={title}
+                                            loading="lazy"
+                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                            onError={(e) =>
+                                                (e.currentTarget.src =
+                                                    "https://via.placeholder.com/300x220?text=No+Image")
+                                            }
+                                        />
+                                        <span className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                           {price}$
+                                    </span>
+                                    </div>
+                                    <div className="flex flex-1 flex-col p-4">
+                                        <span className="text-xs text-gray-500 mb-1">{sku}</span>
+                                        <h3 className="text-sm font-semibold mb-3 line-clamp-2">{title}</h3>
+                                        <button
+                                            type="button"
+                                            className="mt-auto w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            Подробнее
+                                        </button>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    )}
+                </main>
+            </div>
         </div>
     );
 };
