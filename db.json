@@ -1,4 +1,22 @@
 {
+  "categories": [
+    {
+      "id": "ring",
+      "name": "Кольца"
+    },
+    {
+      "id": "wedding",
+      "name": "Свадебные"
+    },
+    {
+      "id": "cocktail",
+      "name": "Коктейльные"
+    },
+    {
+      "id": "engagement",
+      "name": "Помолвочные"
+    }
+  ],
   "items": [
     {
       "id": 1,

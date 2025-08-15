@@ -8,7 +8,7 @@ function App() {
 
   return (
     <>
-      {token &&  <Header />}
+      {/*{token &&  <Header />}*/}
     <Pages />
     </>
   )
