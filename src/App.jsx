@@ -1,17 +1,16 @@
-
 import './App.css'
 import Pages from "./Pages/Pages.jsx";
-import Header from "./Components/Header.jsx";
 
 function App() {
   const token = localStorage.getItem('token');
 
   return (
-    <>
-      {/*{token &&  <Header />}*/}
-    <Pages />
-    </>
+      <>
+        {/* If you want Header always visible, uncomment this */}
+        {/* {token && <Header />} */}
+        <Pages />
+      </>
   )
 }
 
-export default App
+export default App;
