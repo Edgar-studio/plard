@@ -1,4 +1,12 @@
 {
+  "users": [
+    {
+      "id": "2bc8",
+      "email": "samvel1973@seznam.cz",
+      "password": "edgarek73",
+      "name": "edgarek73"
+    }
+  ],
   "categories": [
     {
       "id": "ring",
