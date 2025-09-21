@@ -28,24 +28,75 @@
   "items": [
     {
       "id": 1,
-      "title": "A555",
+      "title": "A555 Diamond Ring",
       "price": 2500,
-      "category": "Ring",
-      "image": "/assets/ring1.jpg"
+      "category": "ring",
+      "image": "/assets/ring1.jpg",
+      "rating": 4.8,
+      "discount": 10,
+      "isNew": true,
+      "description": "Элегантное кольцо из коллекции A555",
+      "sku": "RNG-001"
     },
     {
       "id": 2,
-      "title": "A555",
+      "title": "A555 Gold Ring",
       "price": 2500,
-      "category": "Ring",
-      "image": "/assets/ring2.jpg"
+      "category": "ring",
+      "image": "/assets/ring2.jpg",
+      "rating": 4.7,
+      "discount": 0,
+      "isNew": false,
+      "description": "Классическое кольцо из коллекции A555",
+      "sku": "RNG-002"
     },
     {
       "id": 3,
-      "title": "A555",
+      "title": "A555 Platinum Ring",
       "price": 2500,
-      "category": "Ring",
-      "image": "/assets/ring3.jpg"
+      "category": "ring",
+      "image": "/assets/ring3.jpg",
+      "rating": 4.9,
+      "discount": 15,
+      "isNew": true,
+      "description": "Изысканное кольцо из коллекции A555",
+      "sku": "RNG-003"
+    },
+    {
+      "id": 4,
+      "title": "Wedding Diamond Set",
+      "price": 5000,
+      "category": "wedding",
+      "image": "/assets/wedding1.jpg",
+      "rating": 4.9,
+      "discount": 20,
+      "isNew": true,
+      "description": "Роскошный свадебный набор",
+      "sku": "WDG-001"
+    },
+    {
+      "id": 5,
+      "title": "Cocktail Ring",
+      "price": 1800,
+      "category": "cocktail",
+      "image": "/assets/cocktail1.jpg",
+      "rating": 4.6,
+      "discount": 5,
+      "isNew": false,
+      "description": "Стильное коктейльное кольцо",
+      "sku": "CKT-001"
+    },
+    {
+      "id": 6,
+      "title": "Engagement Ring",
+      "price": 3200,
+      "category": "engagement",
+      "image": "/assets/engagement1.jpg",
+      "rating": 4.9,
+      "discount": 12,
+      "isNew": true,
+      "description": "Помолвочное кольцо премиум класса",
+      "sku": "ENG-001"
     }
   ]
 }
