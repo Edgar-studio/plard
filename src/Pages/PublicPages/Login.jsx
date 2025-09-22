@@ -1,43 +1,49 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Lock, User, ArrowLeft } from "lucide-react";
+import { loginStart, loginSuccess, loginFailure, registerStart, registerSuccess, registerFailure } from "../../store/slices/authSlice";
+import { authService } from "../../services/authService";
 
 const Login = ({ onClose, onLoginSuccess }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
-    const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-
-    const { register, login } = useContext(AuthContext);
+    
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { isLoading, error } = useSelector(state => state.auth);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
-        setError("");
         setSuccessMessage("");
 
-        setTimeout(() => {
-            if (isLogin) {
-                const result = login(email, password);
-                if (result.success) {
-                    onLoginSuccess();
-                    onClose();
-                } else {
-                    setError(result.message);
-                }
+        if (isLogin) {
+            dispatch(loginStart());
+            const result = await authService.login(email, password);
+            
+            if (result.success) {
+                dispatch(loginSuccess(result));
+                onLoginSuccess?.();
+                onClose?.();
+                navigate('/');
             } else {
-                const result = register(email, password, name);
-                if (result.success) {
-                    setSuccessMessage(result.message);
-                    setIsLogin(true);
-                } else {
-                    setError(result.message);
-                }
+                dispatch(loginFailure(result.message));
             }
-            setIsLoading(false);
-        }, 1000);
+        } else {
+            dispatch(registerStart());
+            const result = await authService.register(email, password, name);
+            
+            if (result.success) {
+                dispatch(registerSuccess());
+                setSuccessMessage(result.message);
+                setIsLogin(true);
+            } else {
+                dispatch(registerFailure(result.message));
+            }
+        }
     };
 
     return (

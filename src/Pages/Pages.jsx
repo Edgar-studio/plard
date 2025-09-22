@@ -1,12 +1,14 @@
 import React from 'react';
-import {useRoutes} from "react-router-dom";
-import {PrivateRoutes, PublicRoutes} from "../utils/routes.jsx";
+import { useSelector } from 'react-redux';
+import { useRoutes } from "react-router-dom";
+import { PrivateRoutes, PublicRoutes } from "../utils/routes.jsx";
 
 const Pages = () => {
-    const token = localStorage.getItem('token');
+    const { isAuthenticated } = useSelector(state => state.auth);
+    
     return (
         <div>
-            {useRoutes(token ? PrivateRoutes : PublicRoutes)}
+            {useRoutes(isAuthenticated ? PrivateRoutes : PublicRoutes)}
         </div>
     );
 };

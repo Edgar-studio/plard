@@ -1,109 +1,163 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Categories from "../../Components/Categories.jsx";
-import { ShoppingCart, Heart } from 'lucide-react';
+import ProductCard from "../../Components/ProductCard.jsx";
+import { Sparkles, Diamond, Crown, Zap, Star } from 'lucide-react';
+import { fetchProducts, fetchCategories, setActiveCategory } from '../../store/slices/productsSlice';
+import { addToCart } from '../../store/slices/cartSlice';
+import { toggleFavorite } from '../../store/slices/favoritesSlice';
 
-const Home = ({ addToCart, favorites, setFavorites, searchQuery, activeCategory, setActiveCategory }) => {
-    const [items, setItems] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [filteredItems, setFilteredItems] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const mockData = {
-                    categories: [
-                        { id: "ring", name: "Кольца" },
-                        { id: "wedding", name: "Свадебные" },
-                        { id: "cocktail", name: "Коктейльные" },
-                        { id: "engagement", name: "Помолвочные" }
-                    ],
-                    items: [
-                        { id: 1, title: "A555 Diamond Ring", price: 2500, category: "ring", image: "/assets/ring1.jpg", rating: 4.8, discount: 10, isNew: true, description: "Элегантное кольцо из коллекции A555", sku: "RNG-001" },
-                        { id: 2, title: "A555 Gold Ring", price: 2500, category: "ring", image: "/assets/ring2.jpg", rating: 4.7, discount: 0, isNew: false, description: "Классическое кольцо из коллекции A555", sku: "RNG-002" },
-                        { id: 3, title: "A555 Platinum Ring", price: 2500, category: "ring", image: "/assets/ring3.jpg", rating: 4.9, discount: 15, isNew: true, description: "Изысканное кольцо из коллекции A555", sku: "RNG-003" },
-                        { id: 4, title: "Wedding Diamond Set", price: 5000, category: "wedding", image: "/assets/wedding1.jpg", rating: 4.9, discount: 20, isNew: true, description: "Роскошный свадебный набор", sku: "WDG-001" },
-                        { id: 5, title: "Cocktail Ring", price: 1800, category: "cocktail", image: "/assets/cocktail1.jpg", rating: 4.6, discount: 5, isNew: false, description: "Стильное коктейльное кольцо", sku: "CKT-001" },
-                        { id: 6, title: "Engagement Ring", price: 3200, category: "engagement", image: "/assets/engagement1.jpg", rating: 4.9, discount: 12, isNew: true, description: "Помолвочное кольцо премиум класса", sku: "ENG-001" }
-                    ]
-                };
-
-                setCategories(mockData.categories);
-                setItems(mockData.items);
-                setFilteredItems(mockData.items);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
+const Home = () => {
+    const dispatch = useDispatch();
+    const { items, categories, filteredItems, activeCategory, isLoading, error } = useSelector(state => state.products);
+    const { favorites } = useSelector(state => state.favorites);
 
     useEffect(() => {
-        let filtered = items;
+        dispatch(fetchProducts());
+        dispatch(fetchCategories());
+    }, [dispatch]);
 
-        if (activeCategory && activeCategory !== 'all') {
-            filtered = filtered.filter(item => item.category === activeCategory);
-        }
+    const handleAddToCart = useCallback((item) => {
+        dispatch(addToCart(item));
+    }, [dispatch]);
 
-        if (searchQuery) {
-            filtered = filtered.filter(item =>
-                item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.sku.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-        }
+    const handleToggleFavorite = useCallback((itemId) => {
+        dispatch(toggleFavorite(itemId));
+    }, [dispatch]);
 
-        setFilteredItems(filtered);
-    }, [activeCategory, searchQuery, items]);
+    const handleCategoryChange = useCallback((categoryId) => {
+        dispatch(setActiveCategory(categoryId));
+    }, [dispatch]);
 
-    const toggleFavorite = (itemId) => {
-        setFavorites(prev => {
-            const newFavorites = new Set(prev);
-            if (newFavorites.has(itemId)) {
-                newFavorites.delete(itemId);
-            } else {
-                newFavorites.add(itemId);
-            }
-            return newFavorites;
-        });
-    };
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20">
+                <div className="text-red-500 text-xl font-medium mb-4">Ошибка загрузки данных</div>
+                <div className="text-gray-600">{error}</div>
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <Categories
-                categories={categories}
-                activeCategory={activeCategory}
-                setActiveCategory={setActiveCategory}
-                searchQuery={searchQuery}
-            />
-
-            <div className="grid grid-cols-3 gap-6 p-6">
-                {filteredItems.map(item => (
-                    <div key={item.id} className="border p-4 rounded-xl shadow-lg">
-                        <img src={item.image} alt={item.title} className="w-full h-48 object-cover rounded-lg" />
-                        <h3 className="text-lg font-semibold mt-2">{item.title}</h3>
-                        <p className="text-gray-600">{item.description}</p>
-                        <p className="mt-2 font-bold">{item.price}₽</p>
-                        <div className="flex justify-between mt-3">
-                            <button
-                                onClick={() => addToCart(item)}
-                                className="bg-emerald-500 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                            >
-                                <ShoppingCart size={18} /> В корзину
-                            </button>
-                            <button
-                                onClick={() => toggleFavorite(item.id)}
-                                className={`px-4 py-2 rounded-lg ${favorites.has(item.id) ? 'bg-red-500 text-white' : 'bg-gray-200'}`}
-                            >
-                                <Heart size={18} />
-                            </button>
-                        </div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30">
+            {/* Animated background */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                {[...Array(20)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute animate-float"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            animationDuration: `${5 + Math.random() * 5}s`
+                        }}
+                    >
+                        <Sparkles className="w-3 h-3 text-purple-300/20" />
                     </div>
                 ))}
             </div>
+
+            <Categories
+                categories={categories}
+                activeCategory={activeCategory}
+                setActiveCategory={handleCategoryChange}
+            />
+
+            <div className="max-w-7xl mx-auto px-4 pb-12">
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <div className="w-20 h-20 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mb-6"></div>
+                        <p className="text-xl text-gray-600 font-medium">Загружаем роскошные украшения...</p>
+                        <div className="flex gap-2 mt-4">
+                            {[...Array(3)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="w-3 h-3 bg-purple-400 rounded-full animate-bounce"
+                                    style={{ animationDelay: `${i * 0.1}s` }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                ) : filteredItems.length === 0 ? (
+                    <div className="text-center py-20">
+                        <Diamond className="w-24 h-24 text-gray-300 mx-auto mb-6" />
+                        <p className="text-2xl text-gray-500 font-medium mb-4">Украшения не найдены</p>
+                        <p className="text-gray-400">Попробуйте изменить фильтры поиска</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {filteredItems.map((item, index) => (
+                            <ProductCard
+                                key={item.id}
+                                item={item}
+                                index={index}
+                                favorites={favorites}
+                                onToggleFavorite={handleToggleFavorite}
+                                onAddToCart={handleAddToCart}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* Premium features section */}
+                {!isLoading && filteredItems.length > 0 && (
+                    <div className="mt-16 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl p-8 text-white relative overflow-hidden">
+                        <div className="absolute inset-0 bg-black/20"></div>
+                        <div className="relative">
+                            <div className="text-center mb-8">
+                                <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
+                                    <Crown className="w-8 h-8 animate-bounce" />
+                                    Почему выбирают LuxeGems?
+                                    <Diamond className="w-8 h-8 animate-pulse" />
+                                </h2>
+                            </div>
+
+                            <div className="grid md:grid-cols-3 gap-6 text-center">
+                                <div className="space-y-3">
+                                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
+                                        <Zap className="w-8 h-8 text-yellow-300" />
+                                    </div>
+                                    <h3 className="font-bold text-xl">Быстрая доставка</h3>
+                                    <p className="text-white/80">Доставим в течение 24 часов по Москве</p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
+                                        <Star className="w-8 h-8 text-yellow-300 fill-current" />
+                                    </div>
+                                    <h3 className="font-bold text-xl">Гарантия качества</h3>
+                                    <p className="text-white/80">Пожизненная гарантия на все изделия</p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto">
+                                        <Diamond className="w-8 h-8 text-yellow-300" />
+                                    </div>
+                                    <h3 className="font-bold text-xl">Эксклюзивность</h3>
+                                    <p className="text-white/80">Уникальные дизайны от ведущих мастеров</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <style jsx>{`
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); }
+                    50% { transform: translateY(-10px) rotate(5deg); }
+                }
+                .animate-float {
+                    animation: float 6s ease-in-out infinite;
+                }
+                .line-clamp-2 {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+            `}</style>
         </div>
     );
 };

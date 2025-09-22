@@ -1,7 +1,7 @@
-import React from 'react';
-import { Sparkles, Diamond, Plus, X, Crown } from 'lucide-react';
+import React, { memo } from 'react';
+import { Sparkles } from 'lucide-react';
 
-const Categories = ({ activeCategory, setActiveCategory, categories }) => {
+const Categories = memo(({ activeCategory, setActiveCategory, categories }) => {
     const categoryIcons = {
         'ring': '💍',
         'wedding': '📿',
@@ -42,12 +42,12 @@ const Categories = ({ activeCategory, setActiveCategory, categories }) => {
                         onClick={() => setActiveCategory(category.id)}
                         className={`group relative whitespace-nowrap rounded-3xl px-8 py-4 text-sm font-medium transition-all duration-500 transform hover:scale-110 ${
                             activeCategory === category.id
-                                ? `bg-gradient-to-r ${categoryColors[category.id]} text-white shadow-2xl shadow-purple-500/30`
+                                ? `bg-gradient-to-r ${categoryColors[category.id] || 'from-purple-500 to-pink-500'} text-white shadow-2xl shadow-purple-500/30`
                                 : "bg-white/80 text-gray-700 hover:bg-white hover:shadow-xl backdrop-blur-sm border border-gray-200/50"
                         }`}
                     >
                         <div className="relative flex items-center gap-3">
-                            <span className="text-lg">{categoryIcons[category.id]}</span>
+                            <span className="text-lg">{categoryIcons[category.id] || '💎'}</span>
                             <span className="font-semibold">{category.name}</span>
                             {activeCategory === category.id && (
                                 <Sparkles className="w-4 h-4 animate-spin ml-2" />
@@ -58,6 +58,8 @@ const Categories = ({ activeCategory, setActiveCategory, categories }) => {
             </div>
         </nav>
     );
-};
+});
+
+Categories.displayName = 'Categories';
 
 export default Categories;
