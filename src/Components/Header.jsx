@@ -16,7 +16,7 @@ const Header = memo(() => {
     };
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-2xl shadow-2xl shadow-purple-500/10">
+        <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl shadow-2xl shadow-purple-500/10 border-b border-white/20">
             <div className="max-w-7xl mx-auto flex items-center gap-6 py-4 px-4">
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -36,7 +36,7 @@ const Header = memo(() => {
                         value={searchQuery}
                         onChange={(e) => dispatch(setSearchQuery(e.target.value))}
                         placeholder="Поиск эксклюзивных украшений..."
-                        className="w-full rounded-full border-2 border-gray-200/50 py-4 px-6 text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all duration-300 backdrop-blur-sm bg-white/80 shadow-lg"
+                        className="w-full rounded-full border-2 border-gray-200/50 py-4 px-6 text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500/50 transition-all duration-300 backdrop-blur-md bg-white/90 shadow-lg"
                     />
                 </div>
 

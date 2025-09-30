@@ -39,9 +39,9 @@ const Home = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30">
-            {/* Animated background */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 relative">
+            {/* Animated background with blur */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none backdrop-blur-sm">
                 {[...Array(20)].map((_, i) => (
                     <div
                         key={i}
@@ -143,21 +143,6 @@ const Home = () => {
                 )}
             </div>
 
-            <style jsx>{`
-                @keyframes float {
-                    0%, 100% { transform: translateY(0px) rotate(0deg); }
-                    50% { transform: translateY(-10px) rotate(5deg); }
-                }
-                .animate-float {
-                    animation: float 6s ease-in-out infinite;
-                }
-                .line-clamp-2 {
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                }
-            `}</style>
         </div>
     );
 };

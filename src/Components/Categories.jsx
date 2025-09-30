@@ -24,7 +24,7 @@ const Categories = memo(({ activeCategory, setActiveCategory, categories }) => {
                     className={`group relative whitespace-nowrap rounded-3xl px-8 py-4 text-sm font-medium transition-all duration-500 transform hover:scale-110 ${
                         activeCategory === 'all'
                             ? 'bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-2xl shadow-purple-500/30'
-                            : "bg-white/80 text-gray-700 hover:bg-white hover:shadow-xl backdrop-blur-sm border border-gray-200/50"
+                            : "bg-white/90 text-gray-700 hover:bg-white hover:shadow-xl backdrop-blur-md border border-white/20"
                     }`}
                 >
                     <div className="relative flex items-center gap-3">
@@ -43,7 +43,7 @@ const Categories = memo(({ activeCategory, setActiveCategory, categories }) => {
                         className={`group relative whitespace-nowrap rounded-3xl px-8 py-4 text-sm font-medium transition-all duration-500 transform hover:scale-110 ${
                             activeCategory === category.id
                                 ? `bg-gradient-to-r ${categoryColors[category.id] || 'from-purple-500 to-pink-500'} text-white shadow-2xl shadow-purple-500/30`
-                                : "bg-white/80 text-gray-700 hover:bg-white hover:shadow-xl backdrop-blur-sm border border-gray-200/50"
+                                : "bg-white/90 text-gray-700 hover:bg-white hover:shadow-xl backdrop-blur-md border border-white/20"
                         }`}
                     >
                         <div className="relative flex items-center gap-3">
