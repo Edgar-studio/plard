@@ -13,7 +13,7 @@ export const fetchCategoriesAdmin = createAsyncThunk(
 export const fetchProductsAdmin = createAsyncThunk(
   'admin/fetchProducts',
   async () => {
-    const response = await fetch('http://localhost:4000/products');
+    const response = await fetch('http://localhost:4000/items');
     if (!response.ok) throw new Error('Failed to fetch products');
     return response.json();
   }
